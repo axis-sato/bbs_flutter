@@ -1,3 +1,4 @@
+import 'package:bbs_flutter/ui/pages/QiestionPage.dart';
 import 'package:flutter/material.dart';
 
 import '../../Category.dart';
@@ -90,8 +91,19 @@ class _QuestionListPage extends State<QuestionListPage> {
                     }
 
                     final question = _questions[index];
-                    return _QuestionRow(
-                      question: question,
+                    return InkWell(
+                      child: _QuestionRow(
+                        question: question,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => QuestionPage(
+                                    question: question,
+                                  )),
+                        );
+                      },
                     );
                   },
                   itemCount: _questions.length + 1),
