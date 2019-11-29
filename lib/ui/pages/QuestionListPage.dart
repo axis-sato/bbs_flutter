@@ -1,3 +1,4 @@
+import 'package:bbs_flutter/core/infrastracture/api/api.dart';
 import 'package:bbs_flutter/ui/pages/QiestionPage.dart';
 import 'package:flutter/material.dart';
 
@@ -15,14 +16,14 @@ class QuestionListPage extends StatefulWidget {
 
 class _QuestionListPage extends State<QuestionListPage> {
   bool _isShownMoreButton = true;
-  var _questions = List<Question>.generate(
-      10,
-      (i) => Question(
-          id: i,
-          title: "title$i",
-          body: "body$i",
-          createdAt: DateTime.now(),
-          category: Category(id: i, name: "category$i")));
+//  var _questions = List<Question>.generate(
+//      10,
+//      (i) => Question(
+//          id: i,
+//          title: "title$i",
+//          body: "body$i",
+//          createdAt: DateTime.now(),
+//          category: Category(id: i, name: "category$i")));
 
   void _addQuestion() {
     print("質問追加");
@@ -40,26 +41,23 @@ class _QuestionListPage extends State<QuestionListPage> {
     });
   }
 
-  void _fetchQuestions() {
-    final q = List<Question>.generate(
-      10,
-      (i) {
-        final id = _questions.length + i;
-        return Question(
-            id: id,
-            title: "title$id",
-            body: "body$id",
-            createdAt: DateTime.now(),
-            category: Category(id: id, name: "category$id"));
-      },
-    );
+  void _fetchQuestions() async {
+    final oldQuestions = await _questions;
+    final lastQuestion = oldQuestions.last;
+    final questions =
+        await api.fetchQuestions(limit: 10, sinceId: lastQuestion.id);
+    final newQuestions = [...oldQuestions, ...questions];
     setState(() {
-      _questions.addAll(q);
+      _questions = Future.value(newQuestions);
     });
+  }
 
-    if (_questions.length >= 100) {
-      _hideMoreButton();
-    }
+  Future<List<Question>> _questions;
+  final api = Api();
+  @override
+  void initState() {
+    super.initState();
+    _questions = api.fetchQuestions(limit: 10);
   }
 
   @override
@@ -74,40 +72,52 @@ class _QuestionListPage extends State<QuestionListPage> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == _questions.length) {
-                      return Visibility(
-                        visible: _isShownMoreButton,
-                        child: FlatButton(
-                          child: Text("もっと見る"),
-                          onPressed: () {
-                            print("もっと見る");
-                            _fetchQuestions();
-                          },
-                        ),
-                      );
-                    }
+            FutureBuilder<List<Question>>(
+              future: _questions,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text("エラー");
+                }
 
-                    final question = _questions[index];
-                    return InkWell(
-                      child: _QuestionRow(
-                        question: question,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => QuestionPage(
-                                    question: question,
-                                  )),
+                return Expanded(
+                  child: ListView.builder(
+                      itemBuilder: (BuildContext context, int index) {
+                        if (index == snapshot.data.length) {
+                          return Visibility(
+                            visible: _isShownMoreButton,
+                            child: FlatButton(
+                              child: Text("もっと見る"),
+                              onPressed: () {
+                                print("もっと見る");
+                                _fetchQuestions();
+                              },
+                            ),
+                          );
+                        }
+
+                        final question = snapshot.data[index];
+                        return InkWell(
+                          child: _QuestionRow(
+                            question: question,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => QuestionPage(
+                                  question: question,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                  itemCount: _questions.length + 1),
-            ),
+                      itemCount: snapshot.data.length + 1),
+                );
+              },
+            )
           ],
         ),
       ),

@@ -8,4 +8,14 @@ class Question {
   final Category category;
 
   Question({this.id, this.title, this.body, this.createdAt, this.category});
+
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
+      id: json["id"],
+      title: json["title"],
+      body: json["body"],
+      createdAt: DateTime.parse(json["createdAt"]),
+      category: Category.fromJson(json["category"]),
+    );
+  }
 }
