@@ -1,8 +1,7 @@
 import 'package:bbs_flutter/core/infrastracture/api/api.dart';
-import 'package:bbs_flutter/ui/pages/QiestionPage.dart';
+import 'package:bbs_flutter/ui/pages/QuestionPage.dart';
 import 'package:flutter/material.dart';
 
-import '../../Category.dart';
 import '../../Question.dart';
 
 class QuestionListPage extends StatefulWidget {
@@ -15,15 +14,10 @@ class QuestionListPage extends StatefulWidget {
 }
 
 class _QuestionListPage extends State<QuestionListPage> {
+  final api = Api();
   bool _isShownMoreButton = true;
-//  var _questions = List<Question>.generate(
-//      10,
-//      (i) => Question(
-//          id: i,
-//          title: "title$i",
-//          body: "body$i",
-//          createdAt: DateTime.now(),
-//          category: Category(id: i, name: "category$i")));
+  Future<List<Question>> _questions;
+  Future<int> _totalCount;
 
   void _addQuestion() {
     print("質問追加");
@@ -44,20 +38,24 @@ class _QuestionListPage extends State<QuestionListPage> {
   void _fetchQuestions() async {
     final oldQuestions = await _questions;
     final lastQuestion = oldQuestions.last;
-    final questions =
+    final questionsWithTotalCount =
         await api.fetchQuestions(limit: 10, sinceId: lastQuestion.id);
-    final newQuestions = [...oldQuestions, ...questions];
+    final newQuestions = [
+      ...oldQuestions,
+      ...questionsWithTotalCount.questions
+    ];
     setState(() {
       _questions = Future.value(newQuestions);
+      _totalCount = Future.value(questionsWithTotalCount.totalCount);
     });
   }
 
-  Future<List<Question>> _questions;
-  final api = Api();
   @override
   void initState() {
     super.initState();
-    _questions = api.fetchQuestions(limit: 10);
+    final questionsWithTotalCount = api.fetchQuestions(limit: 10);
+    _questions = questionsWithTotalCount.then((qt) => qt.questions);
+    _totalCount = questionsWithTotalCount.then((qt) => qt.totalCount);
   }
 
   @override
@@ -71,7 +69,17 @@ class _QuestionListPage extends State<QuestionListPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            FutureBuilder<int>(
+              future: _totalCount,
+              builder: (context, snapshot) {
+                return Visibility(
+                  visible: snapshot.hasData,
+                  child: Text("${snapshot.data}件"),
+                );
+              },
+            ),
             FutureBuilder<List<Question>>(
               future: _questions,
               builder: (context, snapshot) {
@@ -84,19 +92,24 @@ class _QuestionListPage extends State<QuestionListPage> {
                 return Expanded(
                   child: ListView.builder(
                       itemBuilder: (BuildContext context, int index) {
-                        if (index == snapshot.data.length) {
-                          return Visibility(
-                            visible: _isShownMoreButton,
-                            child: FlatButton(
-                              child: Text("もっと見る"),
-                              onPressed: () {
-                                print("もっと見る");
-                                _fetchQuestions();
-                              },
-                            ),
+                        final questionsCount = snapshot.data.length;
+                        if (index == questionsCount) {
+                          return FutureBuilder<int>(
+                            future: _totalCount,
+                            builder: (context, snapshot) {
+                              return Visibility(
+                                visible: snapshot.data != questionsCount,
+                                child: FlatButton(
+                                  child: Text("もっと見る"),
+                                  onPressed: () {
+                                    print("もっと見る");
+                                    _fetchQuestions();
+                                  },
+                                ),
+                              );
+                            },
                           );
                         }
-
                         final question = snapshot.data[index];
                         return InkWell(
                           child: _QuestionRow(

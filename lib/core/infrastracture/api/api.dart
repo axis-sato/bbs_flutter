@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bbs_flutter/Question.dart';
+import 'package:bbs_flutter/QuestionsWithTotalCount.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,7 +10,7 @@ class Api {
 
   final _client = http.Client();
 
-  Future<List<Question>> fetchQuestions(
+  Future<QuestionsWithTotalCount> fetchQuestions(
       {@required int limit, int sinceId}) async {
     var url = '$_endpoint/questions?limit=$limit';
     if (sinceId != null) {
@@ -17,7 +18,8 @@ class Api {
     }
 
     final response = await _client.get(url);
-    final itemMapList = json.decode(response.body) as List<dynamic>;
-    return itemMapList.map((itemMap) => Question.fromJson(itemMap)).toList();
+    return QuestionsWithTotalCount.fromJson(json.decode(response.body));
+//    final itemMapList = json.decode(response.body) as List<dynamic>;
+//    return itemMapList.map((itemMap) => Question.fromJson(itemMap)).toList();
   }
 }
