@@ -1,7 +1,7 @@
+import 'package:bbs_flutter/Category.dart';
 import 'package:bbs_flutter/core/infrastracture/api/api.dart';
 import 'package:bbs_flutter/ui/pages/QuestionPage.dart';
 import 'package:flutter/material.dart';
-
 import '../../Question.dart';
 
 class QuestionListPage extends StatefulWidget {
@@ -15,108 +15,20 @@ class QuestionListPage extends StatefulWidget {
 
 class _QuestionListPage extends State<QuestionListPage> {
   final api = Api();
-  final newQuestionTitleController = TextEditingController();
-  final newQuestionBodyController = TextEditingController();
-  bool _isShownMoreButton = true;
   Future<List<Question>> _questions;
   Future<int> _totalCount;
-
-  @override
-  void dispose() {
-    super.dispose();
-    newQuestionTitleController.dispose();
-    newQuestionBodyController.dispose();
-  }
 
   void _addQuestion() async {
     var result = await showDialog<int>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('確認'),
-          content: SizedBox(
-            width: 1300,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                child: Column(
-                  children: <Widget>[
-                    TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "タイトル",
-                      ),
-                      controller: newQuestionTitleController,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "質問内容",
-                      ),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      minLines: 5,
-                      controller: newQuestionBodyController,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: "カテゴリ",
-                      ),
-                      value: "選択する",
-                      items: <String>['選択する', 'カテゴリ1', 'カテゴリ2', 'カテゴリ3']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        print(value);
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('キャンセル'),
-              onPressed: () => Navigator.of(context).pop(0),
-            ),
-            FlatButton(
-              child: Text('投稿する'),
-              onPressed: () {
-                print(newQuestionTitleController.text);
-                print(newQuestionBodyController.text);
-                Navigator.of(context).pop(1);
-              },
-            ),
-          ],
+        return _CreateQuestionDialog(
+          categories: api.fetchCategories(),
         );
       },
     );
     print('dialog result: $result');
-  }
-
-  void _showMoreButton() {
-    setState(() {
-      _isShownMoreButton = true;
-    });
-  }
-
-  void _hideMoreButton() {
-    setState(() {
-      _isShownMoreButton = false;
-    });
   }
 
   void _fetchQuestions() async {
@@ -244,5 +156,113 @@ class _QuestionRow extends StatelessWidget {
         ),
       ],
     ));
+  }
+}
+
+class _CreateQuestionDialog extends StatefulWidget {
+  final Future<List<Category>> categories;
+
+  _CreateQuestionDialog({Key key, this.categories}) : super(key: key);
+
+  @override
+  __CreateQuestionDialogState createState() => __CreateQuestionDialogState();
+}
+
+class __CreateQuestionDialogState extends State<_CreateQuestionDialog> {
+  final newQuestionTitleController = TextEditingController();
+  final newQuestionBodyController = TextEditingController();
+  Category _category;
+
+  @override
+  void dispose() {
+    super.dispose();
+    newQuestionTitleController.dispose();
+    newQuestionBodyController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('確認'),
+      content: SizedBox(
+        width: 1300,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+            child: Column(
+              children: <Widget>[
+                TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "タイトル",
+                  ),
+                  controller: newQuestionTitleController,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "質問内容",
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  minLines: 5,
+                  controller: newQuestionBodyController,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                FutureBuilder<List<Category>>(
+                  future: widget.categories,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircularProgressIndicator();
+                    }
+//                        if (_category == null) {
+//                          _category = snapshot.data.first;
+//                        }
+                    return DropdownButtonFormField<Category>(
+                      decoration: InputDecoration(
+                        labelText: "カテゴリ",
+                      ),
+                      value: _category,
+                      items: snapshot.data
+                          .map<DropdownMenuItem<Category>>((Category category) {
+                        return DropdownMenuItem<Category>(
+                          value: category,
+                          child: Text(category.name),
+                        );
+                      }).toList(),
+                      onChanged: (Category newValue) {
+                        setState(() {
+                          _category = newValue;
+                        });
+                        print(newValue.name);
+                      },
+                    );
+                  },
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('キャンセル'),
+          onPressed: () => Navigator.of(context).pop(0),
+        ),
+        FlatButton(
+          child: Text('投稿する'),
+          onPressed: () {
+            print(newQuestionTitleController.text);
+            print(newQuestionBodyController.text);
+            Navigator.of(context).pop(1);
+          },
+        ),
+      ],
+    );
   }
 }
