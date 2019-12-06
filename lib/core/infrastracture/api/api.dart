@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:bbs_flutter/Category.dart';
-import 'package:bbs_flutter/QuestionsWithTotalCount.dart';
+import 'package:bbs_flutter/category.dart';
+import 'package:bbs_flutter/questions_with_total_count.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 

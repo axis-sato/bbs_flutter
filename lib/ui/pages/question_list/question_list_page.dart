@@ -1,8 +1,8 @@
-import 'package:bbs_flutter/Category.dart';
+import 'package:bbs_flutter/category.dart';
 import 'package:bbs_flutter/core/infrastracture/api/api.dart';
-import 'package:bbs_flutter/ui/pages/QuestionPage.dart';
+import 'package:bbs_flutter/ui/pages/question/question_page.dart';
 import 'package:flutter/material.dart';
-import '../../Question.dart';
+import '../../../question.dart';
 
 class QuestionListPage extends StatefulWidget {
   QuestionListPage({Key key, this.title}) : super(key: key);

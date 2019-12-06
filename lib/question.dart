@@ -1,4 +1,4 @@
-import 'package:bbs_flutter/Category.dart';
+import 'package:bbs_flutter/category.dart';
 
 class Question {
   final int id;

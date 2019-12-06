@@ -1,4 +1,4 @@
-import 'package:bbs_flutter/ui/pages/QuestionListPage.dart';
+import 'package:bbs_flutter/ui/pages/question_list/question_list_page.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
