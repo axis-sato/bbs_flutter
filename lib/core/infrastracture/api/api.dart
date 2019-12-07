@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bbs_flutter/category.dart';
+import 'package:bbs_flutter/question.dart';
 import 'package:bbs_flutter/questions_with_total_count.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,5 +27,14 @@ class Api {
     final response = await _client.get(url);
     final itemMapList = json.decode(response.body) as List<dynamic>;
     return itemMapList.map((itemMap) => Category.fromJson(itemMap)).toList();
+  }
+
+  Future<Question> postQuestion(Question question) async {
+    const url = '$_endpoint/questions';
+    final response = await _client.post(url,
+        body: json.encode(question.toJson()),
+        headers: {"Content-Type": "application/json"});
+
+    return Question.fromJson(json.decode(response.body));
   }
 }

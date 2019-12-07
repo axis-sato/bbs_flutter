@@ -2,13 +2,14 @@ import 'package:bbs_flutter/core/infrastracture/api/api.dart';
 import 'package:bbs_flutter/ui/pages/question/question_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../question.dart';
 import 'create_question_dialog.dart';
 import 'question_list_vm.dart';
 import 'question_row.dart';
 
 class QuestionListPage extends StatelessWidget {
   void _addQuestion({BuildContext context, QuestionListViewModel vm}) async {
-    final result = await showDialog<int>(
+    final newQuestion = await showDialog<Question>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -18,7 +19,10 @@ class QuestionListPage extends StatelessWidget {
         );
       },
     );
-    print('dialog result: $result');
+
+    if (newQuestion != null) {
+      vm.createQuestion(newQuestion);
+    }
   }
 
   @override

@@ -18,4 +18,7 @@ class Question {
       category: Category.fromJson(json["category"]),
     );
   }
+
+  Map<String, dynamic> toJson() =>
+      {'title': title, 'body': body, 'categoryId': category.id};
 }

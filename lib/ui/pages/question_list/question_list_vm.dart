@@ -64,6 +64,21 @@ class QuestionListViewModel extends ChangeNotifier {
     return questions[i];
   }
 
+  Question makeQuestion() {
+    return Question(
+      title: newQuestionTitleController.text,
+      body: newQuestionBodyController.text,
+      category: category,
+    );
+  }
+
+  createQuestion(Question question) async {
+    final newQuestion = await api.postQuestion(question);
+    questions = [newQuestion, ...questions];
+    totalCount += 1;
+    notifyListeners();
+  }
+
   void _setLoadingState(LoadingState state) {
     loadingState = state;
     notifyListeners();
