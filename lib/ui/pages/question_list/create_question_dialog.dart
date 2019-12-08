@@ -24,10 +24,15 @@ class CreateQuestionDialog extends StatelessWidget {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "タイトル",
+                      counterText: "50文字まで",
+                      errorText: vm.questionTitleErrorMessage,
+                      errorMaxLines: 2,
                     ),
+                    onChanged: (text) {
+                      vm.validateQuestionTitle(text);
+                    },
                     controller: vm.newQuestionTitleController,
                   ),
-                  _FieldAnnotationText("50文字まで"),
                   SizedBox(
                     height: 20,
                   ),
@@ -35,13 +40,18 @@ class CreateQuestionDialog extends StatelessWidget {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "質問内容",
+                      counterText: "1000文字まで",
+                      errorText: vm.questionBodyErrorMessage,
+                      errorMaxLines: 2,
                     ),
+                    onChanged: (text) {
+                      vm.validateQuestionBody(text);
+                    },
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                     minLines: 5,
                     controller: vm.newQuestionBodyController,
                   ),
-                  _FieldAnnotationText("1000文字まで"),
                   SizedBox(
                     height: 20,
                   ),
@@ -59,7 +69,6 @@ class CreateQuestionDialog extends StatelessWidget {
                     }).toList(),
                     onChanged: (Category newValue) {
                       vm.selectCategory(newValue);
-                      print(newValue.name);
                     },
                   ),
                 ],
@@ -75,30 +84,14 @@ class CreateQuestionDialog extends StatelessWidget {
           FlatButton(
             child: Text('投稿する'),
             onPressed: () {
-              print(vm.newQuestionTitleController.text);
-              print(vm.newQuestionBodyController.text);
+              if (!vm.validateQuestion()) {
+                return;
+              }
               final question = vm.makeQuestion();
               Navigator.of(context).pop(question);
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FieldAnnotationText extends StatelessWidget {
-  final String text;
-
-  _FieldAnnotationText(this.text, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: Colors.grey,
-        fontSize: 13,
       ),
     );
   }

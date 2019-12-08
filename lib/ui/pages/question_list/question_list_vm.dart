@@ -14,6 +14,8 @@ class QuestionListViewModel extends ChangeNotifier {
   Category category;
   int totalCount;
   LoadingState loadingState = LoadingState.normal;
+  String questionTitleErrorMessage;
+  String questionBodyErrorMessage;
 
   void initState() async {
     _setLoadingState(LoadingState.loading);
@@ -33,6 +35,8 @@ class QuestionListViewModel extends ChangeNotifier {
     newQuestionTitleController.clear();
     newQuestionBodyController.clear();
     category = categories.first;
+    questionTitleErrorMessage = null;
+    questionBodyErrorMessage = null;
     notifyListeners();
   }
 
@@ -89,6 +93,34 @@ class QuestionListViewModel extends ChangeNotifier {
   void _setLoadingState(LoadingState state) {
     loadingState = state;
     notifyListeners();
+  }
+
+  void validateQuestionTitle(String title) {
+    questionTitleErrorMessage =
+        _validateQuestionTitle(title) ? null : "タイトルは1文字以上50文字以下です。";
+    notifyListeners();
+  }
+
+  void validateQuestionBody(String body) {
+    questionBodyErrorMessage =
+        _validateQuestionBody(body) ? null : "本文は1文字以上1000文字以下です。";
+    notifyListeners();
+  }
+
+  bool _validateQuestionTitle(String title) {
+    return title.length >= 1 && title.length <= 50;
+  }
+
+  bool _validateQuestionBody(String body) {
+    return body.length >= 1 && body.length <= 1000;
+  }
+
+  bool validateQuestion() {
+    validateQuestionTitle(newQuestionTitleController.text);
+    validateQuestionBody(newQuestionBodyController.text);
+
+    return _validateQuestionTitle(newQuestionTitleController.text) &&
+        _validateQuestionBody(newQuestionBodyController.text);
   }
 }
 
