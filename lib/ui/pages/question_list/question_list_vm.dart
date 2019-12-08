@@ -22,10 +22,17 @@ class QuestionListViewModel extends ChangeNotifier {
     totalCount = questionsWithTotalCount.totalCount;
 
     categories = await api.fetchCategories();
-    category = categories.first;
+    clearDialogState();
 
     _setLoadingState(LoadingState.normal);
 
+    notifyListeners();
+  }
+
+  void clearDialogState() {
+    newQuestionTitleController.clear();
+    newQuestionBodyController.clear();
+    category = categories.first;
     notifyListeners();
   }
 
