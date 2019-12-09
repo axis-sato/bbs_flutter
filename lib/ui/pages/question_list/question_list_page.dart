@@ -21,10 +21,6 @@ class QuestionListPage extends StatelessWidget {
     );
 
     vm.clearDialogState();
-
-    if (newQuestion != null) {
-      vm.createQuestion(newQuestion);
-    }
   }
 
   @override

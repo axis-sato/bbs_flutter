@@ -83,11 +83,13 @@ class QuestionListViewModel extends ChangeNotifier {
     );
   }
 
-  createQuestion(Question question) async {
-    final newQuestion = await api.postQuestion(question);
-    questions = [newQuestion, ...questions];
-    totalCount += 1;
-    notifyListeners();
+  Future<Question> createQuestion(Question question) async {
+    return api.postQuestion(question).then((newQuestion) {
+      questions = [newQuestion, ...questions];
+      totalCount += 1;
+      notifyListeners();
+      return question;
+    });
   }
 
   void _setLoadingState(LoadingState state) {

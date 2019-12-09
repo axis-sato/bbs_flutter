@@ -83,11 +83,12 @@ class CreateQuestionDialog extends StatelessWidget {
           ),
           FlatButton(
             child: Text('投稿する'),
-            onPressed: () {
+            onPressed: () async {
               if (!vm.validateQuestion()) {
                 return;
               }
               final question = vm.makeQuestion();
+              await vm.createQuestion(question);
               Navigator.of(context).pop(question);
             },
           ),
