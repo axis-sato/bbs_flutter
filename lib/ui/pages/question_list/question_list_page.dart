@@ -42,7 +42,10 @@ class QuestionListPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('${vm.totalCount}件'),
+                Visibility(
+                  visible: vm.totalCount != null,
+                  child: Text('${vm.totalCount}件'),
+                ),
                 Expanded(
                   child: ListView.builder(
                       itemBuilder: (BuildContext context, int index) {
