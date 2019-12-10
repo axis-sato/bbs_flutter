@@ -8,12 +8,17 @@ class QuestionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Text(question.title),
-        Text(question.body),
-        Text(question.category.name),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("質問"),
+      ),
+      body: Column(
+        children: <Widget>[
+          Text(question.title),
+          Text(question.body),
+          Text(question.category.name),
+        ],
+      ),
     );
   }
 }
